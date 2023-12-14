@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'commerce.apps.CommerceConfig',
-    'rest_framework'
+    'rest_framework',
+    'rest_framework.authtoken',
+
 ]
 
 MIDDLEWARE = [
@@ -53,6 +55,12 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'MARKET.urls'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}
 
 TEMPLATES = [
     {

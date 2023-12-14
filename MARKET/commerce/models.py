@@ -14,7 +14,6 @@ PRODUCT_STATUS = (
 )
 class Product(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, max_length=36)
-    slug = models.SlugField(max_length=300)
     name = models.CharField(max_length=100)
     description = models.TextField()
     category = models.CharField(max_length=50, choices=PRODUCT_CATEGORY)
@@ -28,7 +27,7 @@ class Product(models.Model):
         verbose_name_plural = 'Products'
 
     def __str__(self):
-        return self.id
+        return self.name
 
 
 class Cart(models.Model):
@@ -39,16 +38,16 @@ class Cart(models.Model):
         verbose_name_plural = 'Cart'
 
     def __str__(self):
-        return self.id
+        return str(self.id)
 
 
 class Cartitems(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.IntegerField()
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True, null=True)
+    quantity = models.IntegerField(blank=True, null=True)
 
     class Meta:
         verbose_name_plural = 'Cart Items'
 
     def __str__(self):
-        return self.cart
+        return str(self.cart.id)
