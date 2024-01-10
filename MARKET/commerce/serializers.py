@@ -16,3 +16,14 @@ class CartitemsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cartitems
         fields = ['product', 'quantity']
+
+
+class DisplayCartItemsSerializer(serializers.ModelSerializer):
+    product_name = serializers.SerializerMethodField("get_product_name")
+    class Meta:
+        model = Cartitems
+        fields = ["product", "product_name", "quantity"]
+
+
+    def get_product_name(self, obj):
+        return obj.product.name

@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework.response import Response
-from .serializers import ProductSerializer, CartSerializer, CartitemsSerializer
+from .serializers import ProductSerializer, CartSerializer, CartitemsSerializer, DisplayCartItemsSerializer
 from .models import Product, Cart, Cartitems
 from rest_framework.views import APIView
 from rest_framework import status
@@ -9,7 +9,7 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAdminUser, AllowAny
+from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 
 
 class ProductHomePage(APIView):
@@ -52,7 +52,7 @@ class ProductDetailPage(APIView):
 
 
 class CreateCartPage(APIView):
-    permission_classes = ([IsAdminUser])
+    permission_classes = ([IsAuthenticated])
     def post(self, request, format=None):
         new_cart = Cart.objects.create()
         cart_serializer = CartSerializer(new_cart, data=request.data)
@@ -61,23 +61,31 @@ class CreateCartPage(APIView):
         return Response({'Success': 'Your shopping cart has been created successfully!'}, status=status.HTTP_201_CREATED)
 
 class AddToCartPage(APIView):
-    permission_classes = ([IsAdminUser])
+    permission_classes = ([IsAuthenticated])
+
+    ''' PASS IN THE ID OF A CART THEN PASS IN THE 
+    ID OF THE PRODUCT YOU WANT TO ADD AND THE QUANTITY'''
+
     def post(self, request, id):
-        cart_item = Cart.objects.get(id=id)
-        print(cart_item)
-        new_cartitem = Cartitems(cart=cart_item)
-        print(new_cartitem)
-        cart_item = CartitemsSerializer(new_cartitem, data=request.data, partial=True)
-        cart_item.is_valid(raise_exception=True)
-        cart_item.save()
+        current_cart= Cart.objects.get(id=id)
+        print(current_cart)
+        new_cart_item = Cartitems(cart=current_cart)
+        cartitem = CartitemsSerializer(new_cart_item, data=request.data)
+        cartitem.is_valid(raise_exception=True)
+        cartitem.save()
+        # cart_item = CartitemsSerializer(new_cart_item, data=request.data)
+        # cart_item.is_valid(raise_exception=True)
+        # cart_item.save()
         return Response({'Success': 'Item added to cart successfully!'}, status=status.HTTP_201_CREATED)
+
+
 
 
 class ItemsListPage(APIView):
     permission_classes = ([IsAdminUser])
     def get(self, request, id):
         cart_items = Cartitems.objects.filter(id=id)
-        serialized_items = CartitemsSerializer(cart_items, many=True)
+        serialized_items = DisplayCartItemsSerializer(cart_items, many=True)
         return Response(serialized_items.data, status=status.HTTP_200_OK)
 
 
