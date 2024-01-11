@@ -43,8 +43,8 @@ class Cart(models.Model):
 
 class Cartitems(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True, null=True)
-    quantity = models.IntegerField(blank=True, null=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField()
 
     class Meta:
         verbose_name_plural = 'Cart Items'

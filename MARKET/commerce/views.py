@@ -64,10 +64,8 @@ class AddToCartPage(APIView):
     permission_classes = ([IsAdminUser])
     def post(self, request, id):
         cart_item = Cart.objects.get(id=id)
-        print(cart_item)
         new_cartitem = Cartitems(cart=cart_item)
-        print(new_cartitem)
-        cart_item = CartitemsSerializer(new_cartitem, data=request.data, partial=True)
+        cart_item = CartitemsSerializer(new_cartitem, data=request.data)
         cart_item.is_valid(raise_exception=True)
         cart_item.save()
         return Response({'Success': 'Item added to cart successfully!'}, status=status.HTTP_201_CREATED)
@@ -76,9 +74,18 @@ class AddToCartPage(APIView):
 class ItemsListPage(APIView):
     permission_classes = ([IsAdminUser])
     def get(self, request, id):
-        cart_items = Cartitems.objects.filter(id=id)
-        serialized_items = CartitemsSerializer(cart_items, many=True)
+        all_cartitems = Cartitems.objects.filter(cart=id)
+        serialized_items = CartitemsSerializer(all_cartitems, many=True)
         return Response(serialized_items.data, status=status.HTTP_200_OK)
+
+
+class RemoveCartItemPage(APIView):
+    permission_classes = ([IsAdminUser])
+    def delete(self, request, id):
+        remove_product = get_object_or_404(Cartitems, id=id)
+        remove_product.delete()
+        return Response('Product has been successfully removed from your cart', status=status.HTTP_204_NO_CONTENT)
+       
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
